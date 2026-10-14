@@ -1,5 +1,3 @@
-# Cybersecurity-Awareness-Threat-Intelligence-Dashboard-
-Defensive cybersecurity dashboard combining threat intelligence, IOC analysis, risk and confidence scoring, ATT&amp;CK mapping, vulnerability awareness, SOC workflows, and interactive cybersecurity awareness training.”
 # Cybersecurity Awareness & Threat Intelligence Dashboard
 
 > A unified defensive cybersecurity engineering platform bridging automated Cyber Threat Intelligence (CTI) ingestion, IOC normalization, multi-factor risk scoring, MITRE ATT&CK mapping, and frontline human security awareness training.
