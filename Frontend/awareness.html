@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Awareness Center</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar { background-color: #161b22; border-bottom: 1px solid #30363d; }
+        .card { background-color: #161b22; border: 1px solid #30363d; color: #c9d1d9; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark px-4">
+        <a class="navbar-brand fw-bold" href="/dashboard">🛡️ CTI & Awareness Dashboard</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/awareness">Awareness Center</a></li>
+                <li class="nav-item"><a class="nav-link" href="/quiz">Security Quiz</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="container py-4">
+        <h2 class="mb-4">🎓 Cybersecurity Awareness & Human Defense Modules</h2>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h4>🎣 Phishing Awareness</h4>
+                    <p>Learn to identify deceptive emails, urgent pretexts, mismatched sender domains, and unexpected attachments.</p>
+                    <ul>
+                        <li>Check sender header vs display name.</li>
+                        <li>Verify requests for credentials via out-of-band channels.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h4>🔑 Password & MFA Security</h4>
+                    <p>Utilize password managers, enforce passphrase complexity, and mandate phishing-resistant multi-factor authentication.</p>
+                    <ul>
+                        <li>Never reuse organizational credentials.</li>
+                        <li>Prefer hardware security keys or authenticator apps over SMS.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h4>🚨 Ransomware Defense</h4>
+                    <p>Understand the lifecycle of ransomware attacks and how offline backups and least-privilege access mitigate impact.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card p-4">
+                    <h4>📱 Mobile & Remote Security</h4>
+                    <p>Maintain secure remote work practices, avoid public untrusted Wi-Fi without VPNs, and keep operating systems updated.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
