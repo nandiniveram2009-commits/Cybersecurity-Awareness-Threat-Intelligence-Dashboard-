@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cybersecurity Awareness & Threat Intelligence Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar { background-color: #161b22; border-bottom: 1px solid #30363d; }
+        .card { background-color: #161b22; border: 1px solid #30363d; color: #c9d1d9; }
+        .table { color: #c9d1d9; }
+        .table-dark { background-color: #161b22; }
+        .metric-card { border-left: 4px solid #58a6ff; }
+        .badge-critical { background-color: #da3633; }
+        .badge-high { background-color: #f85149; }
+        .badge-medium { background-color: #d29922; }
+        .badge-low { background-color: #3fb950; }
+        .badge-info { background-color: #58a6ff; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark px-4">
+        <a class="navbar-brand fw-bold" href="#">🛡️ CTI & Awareness Dashboard</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link active" href="/dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/awareness">Awareness Center</a></li>
+                <li class="nav-item"><a class="nav-link" href="/quiz">Security Quiz</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-4 px-4">
+        <!-- Top Metrics Cards -->
+        <div class="row g-3 mb-4" id="metrics-cards">
+            <div class="col-md-3"><div class="card p-3 metric-card"><h6>Total Threats</h6><h3 id="m-total">0</h3></div></div>
+            <div class="col-md-3"><div class="card p-3 metric-card border-danger"><h6>Critical Severity</h6><h3 id="m-critical" class="text-danger">0</h3></div></div>
+            <div class="col-md-3"><div class="card p-3 metric-card border-warning"><h6>High Severity</h6><h3 id="m-high" class="text-warning">0</h3></div></div>
+            <div class="col-md-3"><div class="card p-3 metric-card border-info"><h6>Active Indicators</h6><h3 id="m-indicators" class="text-info">0</h3></div></div>
+        </div>
+
+        <!-- IOC Search Tool -->
+        <div class="card p-4 mb-4">
+            <h5 class="mb-3">🔍 IOC & Indicator Lookup Engine</h5>
+            <div class="input-group">
+                <input type="text" id="search-input" class="form-control bg-dark text-light border-secondary" placeholder="Enter IP, domain, hash, or CVE (e.g. 192.0.2.1)...">
+                <button class="btn btn-primary" onclick="searchIndicator()">Search Threat DB</button>
+            </div>
+            <div id="search-result" class="mt-3"></div>
+        </div>
+
+        <!-- Recent Threats Table -->
+        <div class="card p-4">
+            <h5 class="mb-3">📋 Recent Synthetic Threat Telemetry</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Threat Name</th>
+                            <th>Category</th>
+                            <th>Indicator</th>
+                            <th>Severity</th>
+                            <th>Risk</th>
+                            <th>Confidence</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="threats-table-body">
+                        <tr><td colspan="8" class="text-center">Loading telemetry...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchStats() {
+            const res = await fetch('/api/dashboard/stats');
+            const data = await res.json();
+            document.getElementById('m-total').innerText = data.total_threats;
+            document.getElementById('m-critical').innerText = data.critical_threats;
+            document.getElementById('m-high').innerText = data.high_threats;
+            document.getElementById('m-indicators').innerText = data.active_indicators;
+        }
+
+        async function fetchThreats() {
+            const res = await fetch('/api/threats');
+            const threats = await res.json();
+            const tbody = document.getElementById('threats-table-body');
+            tbody.innerHTML = '';
+            
+            threats.slice(0, 15).forEach(t => {
+                let badgeClass = 'badge-info';
+                if(t.severity === 'CRITICAL') badgeClass = 'badge-critical';
+                else if(t.severity === 'HIGH') badgeClass = 'badge-high';
+                else if(t.severity === 'MEDIUM') badgeClass = 'badge-medium';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td><code>${t.threat_id}</code></td>
+                        <td>${t.threat_name}</td>
+                        <td><span class="badge bg-secondary">${t.category}</span></td>
+                        <td><code>${t.indicator_value}</code></td>
+                        <td><span class="badge ${badgeClass}">${t.severity}</span></td>
+                        <td><strong>${t.risk_score}</strong>/100</td>
+                        <td>${t.confidence_score}%</td>
+                        <td><span class="badge bg-dark border border-secondary">${t.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function searchIndicator() {
+            const val = document.getElementById('search-input').value;
+            if(!val) return;
+            const res = await fetch(`/api/indicators/search?value=${encodeURIComponent(val)}`);
+            const data = await res.json();
+            const resDiv = document.getElementById('search-result');
+            
+            if(!data.found) {
+                resDiv.innerHTML = `<div class="alert alert-warning">❌ ${data.message}</div>`;
+                return;
+            }
+            
+            resDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <h6>✅ Indicator Found in Threat Database</h6>
+                    <hr>
+                    <p><strong>Threat ID:</strong> ${data.threat_id} | <strong>Name:</strong> ${data.threat_name}</p>
+                    <p><strong>Type:</strong> ${data.indicator_type} | <strong>Value:</strong> <code>${data.indicator_value}</code></p>
+                    <p><strong>Severity:</strong> <span class="badge bg-danger">${data.severity}</span> | <strong>Risk Score:</strong> ${data.risk_score}/100 | <strong>Confidence:</strong> ${data.confidence_score}%</p>
+                    <p><strong>MITRE Tactic:</strong> ${data.mitre_tactic} (${data.mitre_technique})</p>
+                </div>
+            `;
+        }
+
+        fetchStats();
+        fetchThreats();
+    </script>
+</body>
+</html>
